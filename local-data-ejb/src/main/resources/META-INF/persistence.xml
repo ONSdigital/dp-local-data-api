@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    JBoss, Home of Professional Open Source
+    Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
+    contributors by the @authors tag. See the copyright.txt in the
+    distribution for a full listing of individual contributors.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<persistence version="2.1"
+   xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="
+        http://xmlns.jcp.org/xml/ns/persistence
+        http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+   <persistence-unit name="LocalDataEJB">
+      <!-- If you are running in a production environment, add a managed 
+         data source, this example data source is just for development and testing! -->
+      <!-- The datasource is deployed as <EAR>/META-INF/local-data-ds.xml, you
+         can find it in the source at ear/src/main/application/META-INF/local-data-ds.xml -->
+      <jta-data-source>java:/LocalDataPU</jta-data-source>
+      <class>gov.ons.local.data.entity.Category</class>
+      <class>gov.ons.local.data.entity.ConceptSystem</class>
+      <class>gov.ons.local.data.entity.DataResource</class>
+      <class>gov.ons.local.data.entity.DimensionalDataPoint</class>
+      <class>gov.ons.local.data.entity.DimensionalDataPointPK</class>
+      <class>gov.ons.local.data.entity.DimensionalDataSet</class>
+      <class>gov.ons.local.data.entity.GeographicArea</class>
+      <class>gov.ons.local.data.entity.GeographicAreaHierarchy</class>
+      <class>gov.ons.local.data.entity.GeographicAreaType</class>
+      <class>gov.ons.local.data.entity.GeographicLevelType</class>
+      <class>gov.ons.local.data.entity.ObservationType</class>
+      <class>gov.ons.local.data.entity.Population</class>
+      <class>gov.ons.local.data.entity.PopulationPK</class>
+      <class>gov.ons.local.data.entity.Presentation</class>
+      <class>gov.ons.local.data.entity.PresentationType</class>
+      <class>gov.ons.local.data.entity.SubjectField</class>
+      <class>gov.ons.local.data.entity.Taxonomy</class>
+      <class>gov.ons.local.data.entity.TimePeriod</class>
+      <class>gov.ons.local.data.entity.TimeType</class>
+      <class>gov.ons.local.data.entity.UnitType</class>
+      <class>gov.ons.local.data.entity.ValueDomain</class>
+      <class>gov.ons.local.data.entity.Variable</class>
+   </persistence-unit>
+</persistence>
