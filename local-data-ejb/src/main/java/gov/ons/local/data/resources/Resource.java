@@ -1,5 +1,6 @@
 package gov.ons.local.data.resources;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -171,7 +172,7 @@ public class Resource
 		// e.g.
 		// http://localhost:8080/local-data-web/rs/local-data/data?dataResource=G39&extCode=E07000087&geographicLevelType=LA&timePeriod=19
 		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/data?dataResource=G39&extCode=E07000087&geographicLevelType=LA&timePeriod=19
-
+		
 		// Check input parameters
 		if ((dataResource != null && dataResource.length() > 0)
 				&& (extCode != null && extCode.length() > 0)
@@ -187,13 +188,15 @@ public class Resource
 
 				for (DataDTO d : results)
 				{
+					String value = d.getValue() != null ? d.getValue().toString() : "";
+					
 					arrBuilder.add(Json.createObjectBuilder()
 							.add("variable_id", d.getVariableId())
 							.add("name", d.getName())
 							.add("value_domain", d.getValueDomain())
 							.add("unit_type", d.getUnitType())
 							.add("variable_name", d.getVariableName())
-							.add("value", d.getValue()));
+							.add("value", value));
 				}
 
 				JsonObject output = Json.createObjectBuilder()
