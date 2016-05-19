@@ -15,7 +15,8 @@ import java.util.List;
 	@NamedQuery(name="Variable.findAll", query="SELECT v FROM Variable v"),
 	@NamedQuery(name = "Variable.findByDataResource", query = "SELECT v FROM Variable v WHERE EXISTS"
 			+ "(SELECT dds.dimensionalDataSetId FROM DimensionalDataSet dds JOIN dds.dimensionalDataPoints ddp WHERE "
-			+ "ddp.id.variableId = v.variableId AND dds.dataResourceBean=:dataResource)")})
+			+ "ddp.id.variableId = v.variableId AND dds.dataResourceBean=:dataResource)"),
+	@NamedQuery(name="Variable.findByIds", query="SELECT v FROM Variable v JOIN FETCH v.categories WHERE v.variableId IN :variables"),})
 public class Variable implements Serializable {
 	private static final long serialVersionUID = 1L;
 

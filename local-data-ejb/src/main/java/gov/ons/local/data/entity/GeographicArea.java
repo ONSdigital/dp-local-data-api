@@ -30,7 +30,10 @@ import gov.ons.local.data.DataDTO;
 		@NamedQuery(name = "GeographicArea.findByExtCodeLevel", query = "SELECT g FROM GeographicArea g WHERE EXISTS"
 				+ "(SELECT dds.dimensionalDataSetId FROM DimensionalDataSet dds JOIN dds.dimensionalDataPoints ddp WHERE "
 				+ "ddp.population.id.geographicAreaId = g.geographicAreaId AND dds.dataResourceBean = :dataResource) "
-				+ "AND g.extCode = :extCode AND g.geographicLevelTypeBean = :geographicLevelType")})
+				+ "AND g.extCode = :extCode AND g.geographicLevelTypeBean = :geographicLevelType"),
+		@NamedQuery(name = "GeographicArea.findByDataResource", query = "SELECT g FROM GeographicArea g WHERE EXISTS"
+				+ "(SELECT dds.dimensionalDataSetId FROM DimensionalDataSet dds JOIN dds.dimensionalDataPoints ddp WHERE "
+				+ "ddp.population.id.geographicAreaId = g.geographicAreaId AND dds.dataResourceBean = :dataResource) ")})
 
 @SqlResultSetMapping(name = "DataTableResult", classes = {
 		@ConstructorResult(targetClass = DataDTO.class,	columns = {

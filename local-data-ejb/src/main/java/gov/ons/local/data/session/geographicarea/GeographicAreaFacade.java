@@ -1,5 +1,6 @@
 package gov.ons.local.data.session.geographicarea;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -9,6 +10,7 @@ import javax.persistence.PersistenceContext;
 import gov.ons.local.data.entity.DataResource;
 import gov.ons.local.data.entity.GeographicArea;
 import gov.ons.local.data.entity.GeographicLevelType;
+import gov.ons.local.data.entity.Variable;
 import gov.ons.local.data.session.AbstractFacade;
 
 public class GeographicAreaFacade extends AbstractFacade<GeographicArea>
@@ -47,5 +49,18 @@ public class GeographicAreaFacade extends AbstractFacade<GeographicArea>
 				.getSingleResult();
 
 		return geographicArea;
+	}
+	
+	public List<GeographicArea> findByDataResource(DataResource dataResource)
+	{
+		logger.log(Level.INFO,
+				"findByDataResource: dataResource = " + dataResource.getDataResource());
+
+		@SuppressWarnings("unchecked")
+		List<GeographicArea> results = (List<GeographicArea>) getEntityManager()
+				.createNamedQuery("GeographicArea.findByDataResource")
+				.setParameter("dataResource", dataResource).getResultList();
+		
+		return results;
 	}
 }

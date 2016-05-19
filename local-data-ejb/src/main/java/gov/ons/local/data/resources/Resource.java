@@ -1,7 +1,10 @@
 package gov.ons.local.data.resources;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +19,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import gov.ons.local.data.DataDTO;
+import gov.ons.local.data.VariableDTO;
+import gov.ons.local.data.entity.Category;
 import gov.ons.local.data.entity.DataResource;
 import gov.ons.local.data.entity.GeographicArea;
 import gov.ons.local.data.entity.GeographicLevelType;
@@ -172,7 +177,7 @@ public class Resource
 		// e.g.
 		// http://localhost:8080/local-data-web/rs/local-data/data?dataResource=G39&extCode=E07000087&geographicLevelType=LA&timePeriod=19
 		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/data?dataResource=G39&extCode=E07000087&geographicLevelType=LA&timePeriod=19
-		
+
 		// Check input parameters
 		if ((dataResource != null && dataResource.length() > 0)
 				&& (extCode != null && extCode.length() > 0)
@@ -182,26 +187,52 @@ public class Resource
 			List<DataDTO> results = dataFacade.getVariableValues(extCode,
 					geographicLevelType, timePeriod, dataResource);
 
+			Map<Long, List<String>> varConceptSysMap = new HashMap<>();
+
+			// Add the variable ids to the Map
+			for (DataDTO d : results)
+			{
+				varConceptSysMap.put(d.getVariableId(), new ArrayList<String>());
+			}
+
+			// Get the conceptSystems related to these variables
+			List<VariableDTO> variables = variableFacade
+					.findByIds(varConceptSysMap.keySet());
+
+			for (VariableDTO v : variables)
+			{
+				varConceptSysMap.put(v.getId(), v.getConceptSystems());
+			}
+
 			if (results != null && results.size() > 0)
 			{
 				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+				JsonArrayBuilder conSysArrBuilder = Json.createArrayBuilder();
 
 				for (DataDTO d : results)
 				{
-					String value = d.getValue() != null ? d.getValue().toString() : "";
-					
+					String value = d.getValue() != null ? d.getValue().toString()
+							: "";
+
+					for (String s : varConceptSysMap.get(d.getVariableId()))
+					{
+						conSysArrBuilder.add(s);
+					}
+
 					arrBuilder.add(Json.createObjectBuilder()
 							.add("variable_id", d.getVariableId())
 							.add("name", d.getName())
 							.add("value_domain", d.getValueDomain())
 							.add("unit_type", d.getUnitType())
 							.add("variable_name", d.getVariableName())
-							.add("value", value));
+							.add("value", value)
+							.add("concept_systems", conSysArrBuilder.build()));
 				}
 
 				JsonObject output = Json.createObjectBuilder()
 						.add("ext_code", results.get(0).getExtCode())
-						.add("geographic_area_id", results.get(0).getGeographicAreaId())
+						.add("geographic_area_id",
+								results.get(0).getGeographicAreaId())
 						.add("variables", arrBuilder.build()).build();
 
 				return output.toString();
@@ -209,5 +240,43 @@ public class Resource
 		}
 
 		return "";
+	}
+
+	@GET
+	@Path("/geoareas")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String findGeoAreaByDataResource(
+			@QueryParam("dataResource") String dataResource)
+	{
+		// e.g.
+		// http://localhost:8080/local-data-web/rs/local-data/geoareas?dataResource=G39
+		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/geoareas?dataResource=G39
+
+		// Find the DataResource
+		DataResource dr = dataResourceFacade.findById(dataResource);
+
+		if (dr != null)
+		{
+			List<GeographicArea> results = geographicAreaFacade
+					.findByDataResource(dr);
+
+			JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+
+			for (GeographicArea ga : results)
+			{
+				arrBuilder.add(Json.createObjectBuilder()
+						.add("ext_code", ga.getExtCode()).add("name", ga.getName())
+						.add("geographic_level_type", ga.getGeographicLevelTypeBean()
+								.getGeographicLevelType()));
+			}
+
+			JsonObject output = Json.createObjectBuilder()
+					.add("geographic_areas", arrBuilder.build()).build();
+
+			return output.toString();
+		} else
+		{
+			return "";
+		}
 	}
 }
