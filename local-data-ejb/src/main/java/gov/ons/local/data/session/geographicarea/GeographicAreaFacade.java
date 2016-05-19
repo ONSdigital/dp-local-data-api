@@ -51,13 +51,13 @@ public class GeographicAreaFacade extends AbstractFacade<GeographicArea>
 		return geographicArea;
 	}
 	
-	public List<GeographicArea> findByDataResource(DataResource dataResource)
+	public List<String> findByDataResource(DataResource dataResource)
 	{
 		logger.log(Level.INFO,
 				"findByDataResource: dataResource = " + dataResource.getDataResource());
 
 		@SuppressWarnings("unchecked")
-		List<GeographicArea> results = (List<GeographicArea>) getEntityManager()
+		List<String> results = (List<String>) getEntityManager()
 				.createNamedQuery("GeographicArea.findByDataResource")
 				.setParameter("dataResource", dataResource).getResultList();
 		

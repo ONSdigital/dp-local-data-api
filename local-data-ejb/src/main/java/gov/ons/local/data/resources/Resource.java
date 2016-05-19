@@ -243,35 +243,32 @@ public class Resource
 	}
 
 	@GET
-	@Path("/geoareas")
+	@Path("/geolevels")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String findGeoAreaByDataResource(
 			@QueryParam("dataResource") String dataResource)
 	{
 		// e.g.
-		// http://localhost:8080/local-data-web/rs/local-data/geoareas?dataResource=G39
-		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/geoareas?dataResource=G39
+		// http://localhost:8080/local-data-web/rs/local-data/geolevels?dataResource=G39
+		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/geolevels?dataResource=G39
 
 		// Find the DataResource
 		DataResource dr = dataResourceFacade.findById(dataResource);
 
 		if (dr != null)
 		{
-			List<GeographicArea> results = geographicAreaFacade
+			List<String> results = geographicAreaFacade
 					.findByDataResource(dr);
 
 			JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
 
-			for (GeographicArea ga : results)
+			for (String s : results)
 			{
-				arrBuilder.add(Json.createObjectBuilder()
-						.add("ext_code", ga.getExtCode()).add("name", ga.getName())
-						.add("geographic_level_type", ga.getGeographicLevelTypeBean()
-								.getGeographicLevelType()));
+				arrBuilder.add(s);
 			}
-
+			
 			JsonObject output = Json.createObjectBuilder()
-					.add("geographic_areas", arrBuilder.build()).build();
+					.add("geographic_level_type", arrBuilder.build()).build();
 
 			return output.toString();
 		} else
