@@ -187,25 +187,25 @@ public class Resource
 			List<DataDTO> results = dataFacade.getVariableValues(extCode,
 					geographicLevelType, timePeriod, dataResource);
 
-			Map<Long, List<String>> varConceptSysMap = new HashMap<>();
-
-			// Add the variable ids to the Map
-			for (DataDTO d : results)
-			{
-				varConceptSysMap.put(d.getVariableId(), new ArrayList<String>());
-			}
-
-			// Get the conceptSystems related to these variables
-			List<VariableDTO> variables = variableFacade
-					.findByIds(varConceptSysMap.keySet());
-
-			for (VariableDTO v : variables)
-			{
-				varConceptSysMap.put(v.getId(), v.getConceptSystems());
-			}
-
 			if (results != null && results.size() > 0)
 			{
+				Map<Long, List<String>> varConceptSysMap = new HashMap<>();
+
+				// Add the variable ids to the Map
+				for (DataDTO d : results)
+				{
+					varConceptSysMap.put(d.getVariableId(), new ArrayList<String>());
+				}
+
+				// Get the conceptSystems related to these variables
+				List<VariableDTO> variables = variableFacade
+						.findByIds(varConceptSysMap.keySet());
+
+				for (VariableDTO v : variables)
+				{
+					varConceptSysMap.put(v.getId(), v.getConceptSystems());
+				}
+				
 				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
 				JsonArrayBuilder conSysArrBuilder = Json.createArrayBuilder();
 
