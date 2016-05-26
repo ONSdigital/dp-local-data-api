@@ -13,7 +13,7 @@ import java.util.List;
 @NamedQueries({
 		@NamedQuery(name = "DataResource.findAll", query = "SELECT d FROM DataResource d"),
 		@NamedQuery(name = "DataResource.findById", query = "SELECT d FROM DataResource d WHERE d.dataResource = :dataResourceId"),
-		@NamedQuery(name = "DataResource.searchKeyWord", query = "SELECT d FROM DataResource d WHERE LOWER(d.title) LIKE :searchTerm")})
+		@NamedQuery(name = "DataResource.searchKeyWord", query = "SELECT d FROM DataResource d JOIN FETCH d.taxonomies WHERE LOWER(d.title) LIKE :searchTerm")})
 public class DataResource implements Serializable
 {
 	private static final long serialVersionUID = 1L;

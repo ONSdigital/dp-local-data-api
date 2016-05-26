@@ -10,7 +10,13 @@ import java.util.List;
  * 
  */
 @Entity
-@NamedQuery(name="Category.findAll", query="SELECT c FROM Category c")
+@NamedQueries({
+	@NamedQuery(name="Category.findAll", query="SELECT c FROM Category c"),
+	@NamedQuery(name = "Category.conceptSytemByDataResource", query = "SELECT c FROM Category c WHERE EXISTS "
+			+ "(SELECT dds.dimensionalDataSetId FROM DimensionalDataSet dds JOIN dds.dimensionalDataPoints ddp "
+			+ "JOIN ddp.variable v JOIN v.categories cat WHERE ddp.variable.variableId = v.variableId "
+			+ "AND cat.categoryId = c.categoryId "
+			+ "AND dds.dataResourceBean=:dataResource)")})
 public class Category implements Serializable {
 	private static final long serialVersionUID = 1L;
 

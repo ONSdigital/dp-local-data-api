@@ -1,6 +1,5 @@
 package gov.ons.local.data.resources;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,9 @@ import gov.ons.local.data.entity.Category;
 import gov.ons.local.data.entity.DataResource;
 import gov.ons.local.data.entity.GeographicArea;
 import gov.ons.local.data.entity.GeographicLevelType;
+import gov.ons.local.data.entity.Taxonomy;
 import gov.ons.local.data.entity.Variable;
+import gov.ons.local.data.session.category.CategoryFacade;
 import gov.ons.local.data.session.data.DataFacade;
 import gov.ons.local.data.session.dataresource.DataResourceFacade;
 import gov.ons.local.data.session.geographicarea.GeographicAreaFacade;
@@ -52,6 +53,9 @@ public class Resource
 	@Inject
 	private DataFacade dataFacade;
 
+	@Inject
+	private CategoryFacade categoryFacade;
+
 	@GET
 	@Path("/keywordsearch")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -62,21 +66,28 @@ public class Resource
 		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/keywordsearch?searchTerm=house
 
 		if (searchTerm == null || searchTerm.length() == 0)
-			return "";
 
-		logger.log(Level.INFO, "keyWordSearch: searchTerm = " + searchTerm);
+			logger.log(Level.INFO, "keyWordSearch: searchTerm = " + searchTerm);
 
 		List<DataResource> results = dataResourceFacade
 				.searchKeyWord("%" + searchTerm.toLowerCase().trim() + "%");
 
 		JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+		JsonArrayBuilder taxArrBuilder = Json.createArrayBuilder();
 
 		for (DataResource dr : results)
 		{
+			for (Taxonomy t : dr.getTaxonomies())
+			{
+				taxArrBuilder.add(t.getTaxonomy());
+			}
+
 			arrBuilder.add(Json.createObjectBuilder()
 					.add("data_resource", dr.getDataResource())
-					.add("title", dr.getTitle()).add("metadata",
-							dr.getMetadata() != null ? dr.getMetadata() : ""));
+					.add("title", dr.getTitle())
+					.add("metadata",
+							dr.getMetadata() != null ? dr.getMetadata() : "")
+					.add("taxonomies", taxArrBuilder.build()));
 		}
 
 		JsonObject output = Json.createObjectBuilder()
@@ -95,35 +106,39 @@ public class Resource
 		// http://localhost:8080/local-data-web/rs/local-data/dataresource?dataResource=G39
 		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/dataresource?dataResource=G39
 
-		// Find the DataResource
-		DataResource dr = dataResourceFacade.findById(dataResource);
-
-		if (dr != null)
+		if (dataResource != null && dataResource.length() > 0)
 		{
-			logger.log(Level.INFO,
-					"findByDataResource: dataResource = " + dataResource);
+			// Find the DataResource
+			DataResource dr = dataResourceFacade.findById(dataResource);
 
-			List<Variable> results = variableFacade.findByDataResource(dr);
-
-			JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
-
-			for (Variable v : results)
+			if (dr != null)
 			{
-				arrBuilder.add(Json.createObjectBuilder()
-						.add("variable_id", v.getVariableId())
-						.add("name", v.getName())
-						.add("value_domain", v.getValueDomainBean().getValueDomain())
-						.add("unit_type", v.getUnitTypeBean().getUnitType()));
+				logger.log(Level.INFO,
+						"findByDataResource: dataResource = " + dataResource);
+
+				List<Variable> results = variableFacade.findByDataResource(dr);
+
+				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+
+				for (Variable v : results)
+				{
+					arrBuilder.add(Json.createObjectBuilder()
+							.add("variable_id", v.getVariableId())
+							.add("name", v.getName())
+							.add("value_domain",
+									v.getValueDomainBean().getValueDomain())
+							.add("unit_type", v.getUnitTypeBean().getUnitType()));
+				}
+
+				JsonObject output = Json.createObjectBuilder()
+						.add("variables", arrBuilder.build()).build();
+
+				return output.toString();
 			}
-
-			JsonObject output = Json.createObjectBuilder()
-					.add("variables", arrBuilder.build()).build();
-
-			return output.toString();
-		} else
-		{
-			return "";
 		}
+
+		return Json.createObjectBuilder().add("error", "no-data").build()
+				.toString();
 	}
 
 	@GET
@@ -138,31 +153,42 @@ public class Resource
 		// http://localhost:8080/local-data-web/rs/local-data/data?dataResource=G39&extCode=E07000087&geographicLevelType=LA&timePeriod=19
 		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/extcode?dataResource=G39&extCode=E07000087&geographicLevelType=LA
 
-		// Find the DataResource
-		DataResource dr = dataResourceFacade.findById(dataResource);
-
-		// Find the GeographicLevelType
-		GeographicLevelType glt = geographicLevelTypeFacade
-				.findById(geographicLevelType);
-
-		if (dr != null && glt != null && extCode != null && extCode.length() > 0)
+		if ((dataResource != null && dataResource.length() > 0)
+				&& (extCode != null && extCode.length() > 0)
+				&& (geographicLevelType != null
+						&& geographicLevelType.length() > 0))
 		{
-			GeographicArea result = geographicAreaFacade.findByExtCodeLevel(dr,
-					glt, extCode);
+			// Find the DataResource
+			DataResource dr = dataResourceFacade.findById(dataResource);
 
-			JsonObject output = Json.createObjectBuilder()
-					.add("geographic_area_id", result.getGeographicAreaId())
-					.add("ext_code", result.getExtCode())
-					.add("name", result.getName())
-					.add("geographic_level_type", result.getGeographicLevelTypeBean()
-							.getGeographicLevelType())
-					.build();
+			// Find the GeographicLevelType
+			GeographicLevelType glt = geographicLevelTypeFacade
+					.findById(geographicLevelType);
 
-			return output.toString();
-		} else
-		{
-			return "";
+			if (dr != null && glt != null)
+			{
+				GeographicArea result = geographicAreaFacade.findByExtCodeLevel(dr,
+						glt, extCode);
+
+				if (result != null)
+				{
+					JsonObject output = Json.createObjectBuilder()
+							.add("geographic_area_id", result.getGeographicAreaId())
+							.add("ext_code", result.getExtCode())
+							.add("name", result.getName())
+							.add("geographic_level_type",
+									result.getGeographicLevelTypeBean()
+											.getGeographicLevelType())
+							.build();
+
+					return output.toString();
+				}
+
+			}
 		}
+
+		return Json.createObjectBuilder().add("error", "no-data").build()
+				.toString();
 	}
 
 	@GET
@@ -205,7 +231,7 @@ public class Resource
 				{
 					varConceptSysMap.put(v.getId(), v.getConceptSystems());
 				}
-				
+
 				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
 				JsonArrayBuilder conSysArrBuilder = Json.createArrayBuilder();
 
@@ -239,7 +265,8 @@ public class Resource
 			}
 		}
 
-		return "";
+		return Json.createObjectBuilder().add("error", "no-data").build()
+				.toString();
 	}
 
 	@GET
@@ -252,28 +279,70 @@ public class Resource
 		// http://localhost:8080/local-data-web/rs/local-data/geolevels?dataResource=G39
 		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/geolevels?dataResource=G39
 
-		// Find the DataResource
-		DataResource dr = dataResourceFacade.findById(dataResource);
-
-		if (dr != null)
+		if (dataResource != null && dataResource.length() > 0)
 		{
-			List<String> results = geographicAreaFacade
-					.findByDataResource(dr);
+			// Find the DataResource
+			DataResource dr = dataResourceFacade.findById(dataResource);
 
-			JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
-
-			for (String s : results)
+			if (dr != null)
 			{
-				arrBuilder.add(s);
-			}
-			
-			JsonObject output = Json.createObjectBuilder()
-					.add("geographic_level_type", arrBuilder.build()).build();
+				List<String> results = geographicAreaFacade.findByDataResource(dr);
 
-			return output.toString();
-		} else
-		{
-			return "";
+				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+
+				for (String s : results)
+				{
+					arrBuilder.add(s);
+				}
+
+				JsonObject output = Json.createObjectBuilder()
+						.add("geographic_level_type", arrBuilder.build()).build();
+
+				return output.toString();
+			}
 		}
+
+		return Json.createObjectBuilder().add("error", "no-data").build()
+				.toString();
+	}
+
+	@GET
+	@Path("/getconceptsystem")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String getConceptSytemByDataResource(
+			@QueryParam("dataResource") String dataResource)
+	{
+		// e.g.
+		// http://localhost:8080/local-data-web/rs/local-data/getconceptsystem?dataResource=G39
+		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/getconceptsystem?dataResource=G39
+
+		if (dataResource != null && dataResource.length() > 0)
+		{
+			// Find the DataResource
+			DataResource dr = dataResourceFacade.findById(dataResource);
+
+			if (dr != null)
+			{
+				List<Category> results = categoryFacade
+						.getConceptSytemByDataResource(dr);
+
+				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+
+				for (Category c : results)
+				{
+					arrBuilder.add(Json.createObjectBuilder()
+							.add("name", c.getName()).add("concept_system",
+									c.getConceptSystemBean().getConceptSystem()));
+				}
+
+				JsonObject output = Json.createObjectBuilder()
+						.add("concept_systems", arrBuilder.build()).build();
+
+				return output.toString();
+			}
+		}
+
+		return Json.createObjectBuilder().add("error", "no-data").build()
+				.toString();
 	}
 }
