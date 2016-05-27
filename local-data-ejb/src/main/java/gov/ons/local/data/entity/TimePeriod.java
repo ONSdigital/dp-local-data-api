@@ -12,7 +12,8 @@ import java.util.List;
  */
 @Entity
 @Table(name="time_period")
-@NamedQuery(name="TimePeriod.findAll", query="SELECT t FROM TimePeriod t")
+@NamedQueries({
+	@NamedQuery(name="TimePeriod.findAll", query="SELECT t FROM TimePeriod t")})
 public class TimePeriod implements Serializable {
 	private static final long serialVersionUID = 1L;
 

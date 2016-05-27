@@ -1,5 +1,6 @@
 package gov.ons.local.data.resources;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import gov.ons.local.data.session.data.DataFacade;
 import gov.ons.local.data.session.dataresource.DataResourceFacade;
 import gov.ons.local.data.session.geographicarea.GeographicAreaFacade;
 import gov.ons.local.data.session.geographicleveltype.GeographicLevelTypeFacade;
+import gov.ons.local.data.session.time.TimeFacade;
 import gov.ons.local.data.session.variable.VariableFacade;
 
 @Path("local-data")
@@ -55,6 +57,9 @@ public class Resource
 
 	@Inject
 	private CategoryFacade categoryFacade;
+	
+	@Inject
+	private TimeFacade timeFacade;
 
 	@GET
 	@Path("/keywordsearch")
@@ -339,6 +344,39 @@ public class Resource
 						.add("concept_systems", arrBuilder.build()).build();
 
 				return output.toString();
+			}
+		}
+
+		return Json.createObjectBuilder().add("error", "no-data").build()
+				.toString();
+	}
+	
+	@GET
+	@Path("/latesttime")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String findLatestTimeByDataResource(
+			@QueryParam("dataResource") String dataResource)
+	{
+		// e.g.
+		// http://localhost:8080/local-data-web/rs/local-data/latesttime?dataResource=G39
+		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/latesttime?dataResource=G39
+
+		if (dataResource != null && dataResource.length() > 0)
+		{
+			// Find the DataResource
+			DataResource dr = dataResourceFacade.findById(dataResource);
+
+			if (dr != null)
+			{
+				BigInteger result = timeFacade.findLatestTimeByDataResource(dr);
+
+				if (result != null)
+				{
+					JsonObject output = Json.createObjectBuilder()
+							.add("time_period_id", result).build();
+
+					return output.toString();
+				}
 			}
 		}
 
