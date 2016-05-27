@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 import gov.ons.local.data.entity.DataResource;
@@ -45,10 +46,20 @@ public class DataResourceFacade extends AbstractFacade<DataResource>
 	public DataResource findById(String id)
 	{
 		logger.log(Level.INFO, "findById: id = " + id);
+		
+		DataResource dataResource;
 
-		DataResource dataResource = (DataResource) getEntityManager()
-				.createNamedQuery("DataResource.findById")
-				.setParameter("dataResourceId", id).getSingleResult();
+		try
+		{
+			dataResource = (DataResource) getEntityManager()
+					.createNamedQuery("DataResource.findById")
+					.setParameter("dataResourceId", id).getSingleResult();
+		}
+		catch (NoResultException nre)
+		{
+			return null;
+		}
+
 
 		return dataResource;
 	}
