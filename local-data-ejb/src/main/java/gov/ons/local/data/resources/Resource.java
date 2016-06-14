@@ -24,6 +24,7 @@ import gov.ons.local.data.entity.Category;
 import gov.ons.local.data.entity.DataResource;
 import gov.ons.local.data.entity.GeographicArea;
 import gov.ons.local.data.entity.GeographicLevelType;
+import gov.ons.local.data.entity.Presentation;
 import gov.ons.local.data.entity.Taxonomy;
 import gov.ons.local.data.entity.Variable;
 import gov.ons.local.data.session.category.CategoryFacade;
@@ -31,6 +32,7 @@ import gov.ons.local.data.session.data.DataFacade;
 import gov.ons.local.data.session.dataresource.DataResourceFacade;
 import gov.ons.local.data.session.geographicarea.GeographicAreaFacade;
 import gov.ons.local.data.session.geographicleveltype.GeographicLevelTypeFacade;
+import gov.ons.local.data.session.presentation.PresentationFacade;
 import gov.ons.local.data.session.time.TimeFacade;
 import gov.ons.local.data.session.variable.VariableFacade;
 
@@ -60,6 +62,9 @@ public class Resource
 	
 	@Inject
 	private TimeFacade timeFacade;
+	
+	@Inject
+	private PresentationFacade presentationFacade;
 
 	@GET
 	@Path("/keywordsearch")
@@ -383,4 +388,47 @@ public class Resource
 		return Json.createObjectBuilder().add("error", "no-data").build()
 				.toString();
 	}
+	
+	@GET
+	@Path("/presentation")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String findPresentationByDataResource(
+			@QueryParam("dataResource") String dataResource)
+	{
+		// e.g.
+		// http://localhost:8080/local-data-web/rs/local-data/presentation?dataResource=G39
+		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/presentation?dataResource=G39
+
+		if (dataResource != null && dataResource.length() > 0)
+		{
+			// Find the DataResource
+			DataResource dr = dataResourceFacade.findById(dataResource);
+
+			if (dr != null)
+			{
+				logger.log(Level.INFO,
+						"findByDataResource: dataResource = " + dataResource);
+
+				List<Presentation> results = presentationFacade.findByDataResource(dr);
+
+				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+
+				for (Presentation p : results)
+				{
+					arrBuilder.add(Json.createObjectBuilder()
+							.add("dimensional_data_set_id", p.getDimensionalDataSet().getDimensionalDataSetId())
+							.add("download_url", p.getDownloadurl()));
+				}
+
+				JsonObject output = Json.createObjectBuilder()
+						.add("presentations", arrBuilder.build()).build();
+
+				return output.toString();
+			}
+		}
+
+		return Json.createObjectBuilder().add("error", "no-data").build()
+				.toString();
+	}
+	
 }

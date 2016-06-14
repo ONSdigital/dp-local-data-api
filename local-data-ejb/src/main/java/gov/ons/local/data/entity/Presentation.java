@@ -9,8 +9,13 @@ import javax.persistence.*;
  * 
  */
 @Entity
-@NamedQuery(name="Presentation.findAll", query="SELECT p FROM Presentation p")
+@NamedQueries({
+	@NamedQuery(name="Presentation.findAll", query="SELECT p FROM Presentation p"),
+	@NamedQuery(name = "Presentation.findByDataResource", query = "SELECT p FROM Presentation p WHERE EXISTS"
+			+ "(SELECT dds.dimensionalDataSetId FROM DimensionalDataSet dds WHERE "
+			+ "dds.dimensionalDataSetId = p.dimensionalDataSet.dimensionalDataSetId AND dds.dataResourceBean = :dataResource)")})
 public class Presentation implements Serializable {
+	
 	private static final long serialVersionUID = 1L;
 
 	@Id
