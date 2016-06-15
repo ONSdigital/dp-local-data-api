@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,10 +60,10 @@ public class Resource
 
 	@Inject
 	private CategoryFacade categoryFacade;
-	
+
 	@Inject
 	private TimeFacade timeFacade;
-	
+
 	@Inject
 	private PresentationFacade presentationFacade;
 
@@ -245,14 +246,15 @@ public class Resource
 				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
 				JsonArrayBuilder conSysArrBuilder = Json.createArrayBuilder();
 
-				// Add results to Map to remove duplicates that are caused by multiple hierarchies 
+				// Add results to Map to remove duplicates that are caused by
+				// multiple hierarchies
 				Map<Long, DataDTO> resultMap = new HashMap<>();
-				
+
 				for (DataDTO d : results)
 				{
 					resultMap.put(d.getVariableId(), d);
-				}		
-				
+				}
+
 				for (DataDTO d : resultMap.values())
 				{
 					String value = d.getValue() != null ? d.getValue().toString()
@@ -304,17 +306,22 @@ public class Resource
 
 			if (dr != null)
 			{
-				List<String> results = geographicAreaFacade.findByDataResource(dr);
+				Set<String> results = geographicAreaFacade.findByDataResource(dr);
+
+				List<GeographicLevelType> levelTypes = geographicLevelTypeFacade
+						.findByIds(results);
 
 				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
 
-				for (String s : results)
+				for (GeographicLevelType glt : levelTypes)
 				{
-					arrBuilder.add(s);
+					arrBuilder.add(Json.createObjectBuilder()
+							.add("geographic_level_type", glt.getGeographicLevelType())
+							.add("metadata", glt.getMetadata()));
 				}
 
 				JsonObject output = Json.createObjectBuilder()
-						.add("geographic_level_type", arrBuilder.build()).build();
+						.add("geographic_level_types", arrBuilder.build()).build();
 
 				return output.toString();
 			}
@@ -363,7 +370,7 @@ public class Resource
 		return Json.createObjectBuilder().add("error", "no-data").build()
 				.toString();
 	}
-	
+
 	@GET
 	@Path("/latesttime")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -396,7 +403,7 @@ public class Resource
 		return Json.createObjectBuilder().add("error", "no-data").build()
 				.toString();
 	}
-	
+
 	@GET
 	@Path("/presentation")
 	@Produces({ MediaType.APPLICATION_JSON })
@@ -417,15 +424,19 @@ public class Resource
 				logger.log(Level.INFO,
 						"findByDataResource: dataResource = " + dataResource);
 
-				List<Presentation> results = presentationFacade.findByDataResource(dr);
+				List<Presentation> results = presentationFacade
+						.findByDataResource(dr);
 
 				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
 
 				for (Presentation p : results)
 				{
-					arrBuilder.add(Json.createObjectBuilder()
-							.add("dimensional_data_set_id", p.getDimensionalDataSet().getDimensionalDataSetId())
-							.add("download_url", p.getDownloadurl()));
+					arrBuilder
+							.add(Json.createObjectBuilder()
+									.add("dimensional_data_set_id",
+											p.getDimensionalDataSet()
+													.getDimensionalDataSetId())
+									.add("download_url", p.getDownloadurl()));
 				}
 
 				JsonObject output = Json.createObjectBuilder()
@@ -438,5 +449,5 @@ public class Resource
 		return Json.createObjectBuilder().add("error", "no-data").build()
 				.toString();
 	}
-	
+
 }

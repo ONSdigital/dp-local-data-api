@@ -1,6 +1,8 @@
 package gov.ons.local.data.session.geographicarea;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,7 +53,7 @@ public class GeographicAreaFacade extends AbstractFacade<GeographicArea>
 		return geographicArea;
 	}
 	
-	public List<String> findByDataResource(DataResource dataResource)
+	public Set<String> findByDataResource(DataResource dataResource)
 	{
 		logger.log(Level.INFO,
 				"findByDataResource: dataResource = " + dataResource.getDataResource());
@@ -61,6 +63,6 @@ public class GeographicAreaFacade extends AbstractFacade<GeographicArea>
 				.createNamedQuery("GeographicArea.findByDataResource")
 				.setParameter("dataResource", dataResource).getResultList();
 		
-		return results;
+		return new HashSet<>(results);
 	}
 }

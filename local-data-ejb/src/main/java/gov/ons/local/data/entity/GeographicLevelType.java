@@ -13,7 +13,8 @@ import java.util.List;
 @Table(name="geographic_level_type")
 @NamedQueries({
 	@NamedQuery(name="GeographicLevelType.findAll", query="SELECT g FROM GeographicLevelType g"),
-	@NamedQuery(name = "GeographicLevelType.findById", query = "SELECT g FROM GeographicLevelType g WHERE g.geographicLevelType = :geographicLevelTypeId")})
+	@NamedQuery(name = "GeographicLevelType.findById", query = "SELECT g FROM GeographicLevelType g WHERE g.geographicLevelType = :geographicLevelTypeId"),
+	@NamedQuery(name = "GeographicLevelType.findByIds", query = "SELECT g FROM GeographicLevelType g WHERE g.geographicLevelType IN :geographicLevelTypeIds")})
 public class GeographicLevelType implements Serializable {
 	private static final long serialVersionUID = 1L;
 
