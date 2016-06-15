@@ -245,7 +245,15 @@ public class Resource
 				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
 				JsonArrayBuilder conSysArrBuilder = Json.createArrayBuilder();
 
+				// Add results to Map to remove duplicates that are caused by multiple hierarchies 
+				Map<Long, DataDTO> resultMap = new HashMap<>();
+				
 				for (DataDTO d : results)
+				{
+					resultMap.put(d.getVariableId(), d);
+				}		
+				
+				for (DataDTO d : resultMap.values())
 				{
 					String value = d.getValue() != null ? d.getValue().toString()
 							: "";
