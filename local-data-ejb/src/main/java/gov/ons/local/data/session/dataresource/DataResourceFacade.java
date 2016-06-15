@@ -60,7 +60,6 @@ public class DataResourceFacade extends AbstractFacade<DataResource>
 			return null;
 		}
 
-
 		return dataResource;
 	}
 }

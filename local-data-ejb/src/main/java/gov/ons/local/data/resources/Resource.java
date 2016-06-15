@@ -449,5 +449,33 @@ public class Resource
 		return Json.createObjectBuilder().add("error", "no-data").build()
 				.toString();
 	}
+	
+	@GET
+	@Path("/dataresourcetitle")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String getTitleByDataResource(
+			@QueryParam("dataResource") String dataResource)
 
+	{
+		// e.g.
+		// http://localhost:8080/local-data-web/rs/local-data/dataresourcetitle?dataResource=G39
+		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/dataresourcetitle?dataResource=G39
+
+		if (dataResource != null && dataResource.length() > 0)
+		{
+			// Find the DataResource
+			DataResource dr = dataResourceFacade.findById(dataResource);
+
+			if (dr != null)
+			{
+				JsonObject output = Json.createObjectBuilder()
+						.add("title", dr.getTitle()).build();
+
+				return output.toString();
+			}
+		}
+
+		return Json.createObjectBuilder().add("error", "no-data").build()
+				.toString();
+	}
 }
