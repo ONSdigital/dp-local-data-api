@@ -1,7 +1,11 @@
 package gov.ons.local.data.session.variable;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -75,4 +79,33 @@ public class VariableFacade extends AbstractFacade<Variable>
 		return variables;
 	}
 
+	public Collection<Category> getConceptSystemByVariables(List<Variable> variables)
+	{
+		logger.log(Level.INFO,
+				"getConceptSystemByVariables: variables = " + variables);
+		
+		Set<Long> ids = new HashSet<>();
+		
+		for (Variable v : variables)
+		{
+			ids.add(v.getVariableId());
+		}
+		
+		@SuppressWarnings("unchecked")
+		List<Variable> results = (List<Variable>) getEntityManager()
+				.createNamedQuery("Variable.findByIds")
+				.setParameter("variables", ids).getResultList();
+		
+		Map<Long, Category> categories = new HashMap<>();
+		
+		for (Variable v : results)
+		{
+			for (Category c : v.getCategories())
+			{
+				categories.put(c.getCategoryId(), c);
+			}
+		}
+		
+		return categories.values();
+	}
 }

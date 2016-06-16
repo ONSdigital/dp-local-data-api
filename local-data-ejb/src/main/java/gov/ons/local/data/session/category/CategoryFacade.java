@@ -44,5 +44,4 @@ public class CategoryFacade extends AbstractFacade<Category>
 
 		return results;
 	}
-
 }

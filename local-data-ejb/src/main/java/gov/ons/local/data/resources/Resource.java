@@ -2,7 +2,9 @@ package gov.ons.local.data.resources;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -348,12 +350,16 @@ public class Resource
 
 			if (dr != null)
 			{
-				List<Category> results = categoryFacade
-						.getConceptSytemByDataResource(dr);
+				// Get the variables associated with this data resource
+				List<Variable> variables = variableFacade.findByDataResource(dr);
+
+				// Get categories associated with these variables
+				Collection<Category> categories = variableFacade
+						.getConceptSystemByVariables(variables);
 
 				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
 
-				for (Category c : results)
+				for (Category c : categories)
 				{
 					arrBuilder.add(Json.createObjectBuilder()
 							.add("name", c.getName()).add("concept_system",
@@ -449,7 +455,7 @@ public class Resource
 		return Json.createObjectBuilder().add("error", "no-data").build()
 				.toString();
 	}
-	
+
 	@GET
 	@Path("/dataresourcetitle")
 	@Produces({ MediaType.APPLICATION_JSON })
