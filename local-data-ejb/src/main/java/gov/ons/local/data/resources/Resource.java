@@ -25,6 +25,7 @@ import gov.ons.local.data.DataDTO;
 import gov.ons.local.data.VariableDTO;
 import gov.ons.local.data.entity.Category;
 import gov.ons.local.data.entity.DataResource;
+import gov.ons.local.data.entity.DimensionalDataSet;
 import gov.ons.local.data.entity.GeographicArea;
 import gov.ons.local.data.entity.GeographicLevelType;
 import gov.ons.local.data.entity.Presentation;
@@ -33,6 +34,7 @@ import gov.ons.local.data.entity.Variable;
 import gov.ons.local.data.session.category.CategoryFacade;
 import gov.ons.local.data.session.data.DataFacade;
 import gov.ons.local.data.session.dataresource.DataResourceFacade;
+import gov.ons.local.data.session.dimensionaldataset.DimensionalDataSetFacade;
 import gov.ons.local.data.session.geographicarea.GeographicAreaFacade;
 import gov.ons.local.data.session.geographicleveltype.GeographicLevelTypeFacade;
 import gov.ons.local.data.session.presentation.PresentationFacade;
@@ -68,6 +70,9 @@ public class Resource
 
 	@Inject
 	private PresentationFacade presentationFacade;
+	
+	@Inject
+	private DimensionalDataSetFacade dimensionalDataSetFacade;
 
 	@GET
 	@Path("/keywordsearch")
@@ -476,6 +481,53 @@ public class Resource
 			{
 				JsonObject output = Json.createObjectBuilder()
 						.add("title", dr.getTitle()).build();
+
+				return output.toString();
+			}
+		}
+
+		return Json.createObjectBuilder().add("error", "no-data").build()
+				.toString();
+	}
+	
+	@GET
+	@Path("/metadata")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public String getMetadataDataResource(
+			@QueryParam("dataResource") String dataResource)
+
+	{
+		// e.g.
+		// http://localhost:8080/local-data-web/rs/local-data/metadata?dataResource=G39
+		// http://ec2-52-25-128-99.us-west-2.compute.amazonaws.com/local-data-web/rs/local-data/metadata?dataResource=G39
+
+		if (dataResource != null && dataResource.length() > 0)
+		{
+			// Find the DataResource
+			DataResource dr = dataResourceFacade.findById(dataResource);
+
+			if (dr != null)
+			{
+				List<DimensionalDataSet> results = dimensionalDataSetFacade.findByDataResource(dr);
+				
+				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+				
+				for (DimensionalDataSet dds : results)
+				{
+					arrBuilder
+					.add(Json.createObjectBuilder()
+							.add("dimensional_data_set_id",
+									dds.getDimensionalDataSetId())
+							.add("title", dds.getTitle())
+							.add("metadata", dds.getMetadata())
+							.add("source", dds.getSource())
+							.add("contact", dds.getContact())
+							.add("release_date", dds.getReleaseDate())
+							.add("next_release", dds.getNextRelease()));
+				}
+				
+				JsonObject output = Json.createObjectBuilder()
+						.add("dimensional_data_sets", arrBuilder.build()).build();
 
 				return output.toString();
 			}
