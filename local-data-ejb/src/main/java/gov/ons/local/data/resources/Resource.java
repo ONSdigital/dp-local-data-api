@@ -508,7 +508,6 @@ public class Resource
 
 			if (dr != null)
 			{
-//				List<DimensionalDataSet> results = dimensionalDataSetFacade.findByDataResource(dr);
 				BigInteger timePeriodId = timeFacade.findLatestTimeByDataResource(dr);
 				
 				if (timePeriodId != null)
@@ -527,27 +526,6 @@ public class Resource
 					
 					return output.toString();
 				}			
-				
-//				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
-				
-//				for (DimensionalDataSet dds : results)
-//				{
-//					arrBuilder
-//					.add(Json.createObjectBuilder()
-//							.add("dimensional_data_set_id",
-//									dds.getDimensionalDataSetId())
-//							.add("title", dds.getTitle())
-//							.add("metadata", dds.getMetadata())
-//							.add("source", dds.getSource())
-//							.add("contact", dds.getContact())
-//							.add("release_date", dds.getReleaseDate())
-//							.add("next_release", dds.getNextRelease()));
-//				}
-//				
-//				JsonObject output = Json.createObjectBuilder()
-//						.add("dimensional_data_sets", arrBuilder.build()).build();
-
-//				return output.toString();
 			}
 		}
 
