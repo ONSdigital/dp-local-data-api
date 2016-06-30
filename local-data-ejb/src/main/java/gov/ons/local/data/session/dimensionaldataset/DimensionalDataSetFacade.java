@@ -1,5 +1,6 @@
 package gov.ons.local.data.session.dimensionaldataset;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,6 +20,12 @@ public class DimensionalDataSetFacade extends AbstractFacade<DimensionalDataSet>
 
 	private Logger logger = Logger
 			.getLogger(DimensionalDataSetFacade.class.getSimpleName());
+	
+	private static String LATEST_DIMENSIONAL_DATASET = "SELECT DISTINCT(dds.dimensional_data_set_id) "
+			+ "FROM dimensional_data_set dds, dimensional_data_point ddp "
+			+ "WHERE dds.dimensional_data_set_id = ddp.dimensional_data_set_id "
+			+ "AND dds.data_resource = ?1 "
+			+ "AND ddp.time_period_id  = ?2";
 
 	public DimensionalDataSetFacade()
 	{
@@ -42,4 +49,30 @@ public class DimensionalDataSetFacade extends AbstractFacade<DimensionalDataSet>
 
 		return results;
 	}
+	
+	public DimensionalDataSet findLatestByDataResource(DataResource dataResource, BigInteger timePeriod)
+	{
+		logger.log(Level.INFO,
+				"findLatestDataResource: dataResource = dataResource");
+		
+		BigInteger dimensionalDataSetId = (BigInteger) getEntityManager()
+				.createNativeQuery(LATEST_DIMENSIONAL_DATASET)
+				.setParameter(1, dataResource.getDataResource())
+				.setParameter(2, timePeriod).getSingleResult();
+		
+		DimensionalDataSet dimensionalDataSet;
+		
+		if (dimensionalDataSetId != null)
+		{
+			dimensionalDataSet = (DimensionalDataSet) getEntityManager()
+					.createNamedQuery("DimensionalDataSet.findById")
+					.setParameter("dimensionalDataSetId", dimensionalDataSetId.longValue()).getSingleResult();
+			
+			return dimensionalDataSet;
+		}
+		else
+		{
+			return null;
+		}	
+	} 
 }

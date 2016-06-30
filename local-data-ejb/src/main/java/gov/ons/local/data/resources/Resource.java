@@ -508,28 +508,46 @@ public class Resource
 
 			if (dr != null)
 			{
-				List<DimensionalDataSet> results = dimensionalDataSetFacade.findByDataResource(dr);
+//				List<DimensionalDataSet> results = dimensionalDataSetFacade.findByDataResource(dr);
+				BigInteger timePeriodId = timeFacade.findLatestTimeByDataResource(dr);
 				
-				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
-				
-				for (DimensionalDataSet dds : results)
+				if (timePeriodId != null)
 				{
-					arrBuilder
-					.add(Json.createObjectBuilder()
+					DimensionalDataSet result = dimensionalDataSetFacade.findLatestByDataResource(dr, timePeriodId);
+					
+					JsonObject output = Json.createObjectBuilder()
 							.add("dimensional_data_set_id",
-									dds.getDimensionalDataSetId())
-							.add("title", dds.getTitle())
-							.add("metadata", dds.getMetadata())
-							.add("source", dds.getSource())
-							.add("contact", dds.getContact())
-							.add("release_date", dds.getReleaseDate())
-							.add("next_release", dds.getNextRelease()));
-				}
+									result.getDimensionalDataSetId())
+							.add("title", result.getTitle())
+							.add("metadata", result.getMetadata())
+							.add("source", result.getSource())
+							.add("contact", result.getContact())
+							.add("release_date", result.getReleaseDate())
+							.add("next_release", result.getNextRelease()).build();
+					
+					return output.toString();
+				}			
 				
-				JsonObject output = Json.createObjectBuilder()
-						.add("dimensional_data_sets", arrBuilder.build()).build();
+//				JsonArrayBuilder arrBuilder = Json.createArrayBuilder();
+				
+//				for (DimensionalDataSet dds : results)
+//				{
+//					arrBuilder
+//					.add(Json.createObjectBuilder()
+//							.add("dimensional_data_set_id",
+//									dds.getDimensionalDataSetId())
+//							.add("title", dds.getTitle())
+//							.add("metadata", dds.getMetadata())
+//							.add("source", dds.getSource())
+//							.add("contact", dds.getContact())
+//							.add("release_date", dds.getReleaseDate())
+//							.add("next_release", dds.getNextRelease()));
+//				}
+//				
+//				JsonObject output = Json.createObjectBuilder()
+//						.add("dimensional_data_sets", arrBuilder.build()).build();
 
-				return output.toString();
+//				return output.toString();
 			}
 		}
 

@@ -12,6 +12,7 @@ import java.util.List;
 @Table(name = "dimensional_data_set", schema = "onslocal_data")
 @NamedQueries({
 		@NamedQuery(name = "DimensionalDataSet.findAll", query = "SELECT d FROM DimensionalDataSet d"),
+		@NamedQuery(name = "DimensionalDataSet.findById", query = "SELECT d FROM DimensionalDataSet d WHERE d.dimensionalDataSetId = :dimensionalDataSetId"),
 		@NamedQuery(name = "DimensionalDataSet.findByDataResource", query = "SELECT d FROM DimensionalDataSet d "
 				+ "WHERE d.dataResourceBean=:dataResource")})
 public class DimensionalDataSet implements Serializable
