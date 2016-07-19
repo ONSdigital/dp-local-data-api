@@ -10,7 +10,7 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name = "variable", schema="onslocal_data")
+@Table(name = "variable")
 @NamedQueries({
 	@NamedQuery(name="Variable.findAll", query="SELECT v FROM Variable v"),
 	@NamedQuery(name = "Variable.findByDataResource", query = "SELECT v FROM Variable v WHERE EXISTS"

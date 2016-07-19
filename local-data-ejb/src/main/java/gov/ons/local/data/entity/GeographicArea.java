@@ -24,7 +24,7 @@ import gov.ons.local.data.DataDTO;
  * 
  */
 @Entity
-@Table(name = "geographic_area", schema = "onslocal_data")
+@Table(name = "geographic_area")
 @NamedQueries({
 		@NamedQuery(name = "GeographicArea.findAll", query = "SELECT g FROM GeographicArea g"),
 		@NamedQuery(name = "GeographicArea.findByExtCodeLevel", query = "SELECT g FROM GeographicArea g WHERE EXISTS"

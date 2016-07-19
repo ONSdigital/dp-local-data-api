@@ -9,7 +9,7 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name = "dimensional_data_set", schema = "onslocal_data")
+@Table(name = "dimensional_data_set")
 @NamedQueries({
 		@NamedQuery(name = "DimensionalDataSet.findAll", query = "SELECT d FROM DimensionalDataSet d"),
 		@NamedQuery(name = "DimensionalDataSet.findById", query = "SELECT d FROM DimensionalDataSet d WHERE d.dimensionalDataSetId = :dimensionalDataSetId"),
@@ -53,6 +53,7 @@ public class DimensionalDataSet implements Serializable
 
 	private String publisher;
 
+	@Column(name="reference_list")
 	private String references;
 
 	private String spatial;

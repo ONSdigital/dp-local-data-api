@@ -9,7 +9,7 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name = "data_resource", schema="onslocal_data")
+@Table(name = "data_resource")
 @NamedQueries({
 		@NamedQuery(name = "DataResource.findAll", query = "SELECT d FROM DataResource d"),
 		@NamedQuery(name = "DataResource.findById", query = "SELECT d FROM DataResource d WHERE d.dataResource = :dataResourceId"),

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  * 
  */
 @Entity
-@Table(name = "dimensional_data_point", schema = "onslocal_data")
+@Table(name = "dimensional_data_point")
 @NamedQueries({
 		@NamedQuery(name = "DimensionalDataPoint.findAll", query = "SELECT d FROM DimensionalDataPoint d"),
 		@NamedQuery(name = "DimensionalDataPoint.findByVarGeoTime", query = "SELECT d FROM DimensionalDataPoint d WHERE d.population = :population AND d.variable IN :variables") })

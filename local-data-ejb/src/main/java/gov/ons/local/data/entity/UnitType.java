@@ -10,7 +10,7 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="unit_type", schema="onslocal_data")
+@Table(name="unit_type")
 @NamedQuery(name="UnitType.findAll", query="SELECT u FROM UnitType u")
 public class UnitType implements Serializable {
 	private static final long serialVersionUID = 1L;

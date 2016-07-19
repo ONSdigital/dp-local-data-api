@@ -10,7 +10,7 @@ import java.util.List;
  * 
  */
 @Entity
-@Table(name="value_domain", schema="onslocal_data")
+@Table(name="value_domain")
 @NamedQuery(name="ValueDomain.findAll", query="SELECT v FROM ValueDomain v")
 public class ValueDomain implements Serializable {
 	private static final long serialVersionUID = 1L;
