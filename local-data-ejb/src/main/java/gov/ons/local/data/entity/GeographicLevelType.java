@@ -23,6 +23,8 @@ public class GeographicLevelType implements Serializable {
 	private String geographicLevelType;
 
 	private String metadata;
+	
+	private String layers;
 
 	//bi-directional many-to-one association to GeographicArea
 	@OneToMany(mappedBy="geographicLevelTypeBean")
@@ -45,6 +47,16 @@ public class GeographicLevelType implements Serializable {
 
 	public void setMetadata(String metadata) {
 		this.metadata = metadata;
+	}
+
+	public String getLayers()
+	{
+		return layers;
+	}
+
+	public void setLayers(String layers)
+	{
+		this.layers = layers;
 	}
 
 	public List<GeographicArea> getGeographicAreas() {

@@ -324,7 +324,8 @@ public class Resource
 				{
 					arrBuilder.add(Json.createObjectBuilder()
 							.add("geographic_level_type", glt.getGeographicLevelType())
-							.add("metadata", glt.getMetadata()));
+							.add("metadata", glt.getMetadata())
+							.add("layers", glt.getLayers()));
 				}
 
 				JsonObject output = Json.createObjectBuilder()
@@ -337,6 +338,8 @@ public class Resource
 		return Json.createObjectBuilder().add("error", "no-data").build()
 				.toString();
 	}
+	
+	
 
 	@GET
 	@Path("/getconceptsystem")
