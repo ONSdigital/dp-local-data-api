@@ -3,6 +3,8 @@ package gov.ons.local.data.resources;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.ws.rs.GET;
@@ -373,10 +376,47 @@ public class Resource
 							.add("name", c.getName()).add("concept_system",
 									c.getConceptSystemBean().getConceptSystem()));
 				}
+  
+				    JsonArray jsonArr = arrBuilder.build();
+				    JsonArrayBuilder sortedJsonArray = Json.createArrayBuilder();
+
+				    List<JsonObject> jsonValues = new ArrayList<JsonObject>();
+				    for (int i = 0; i < jsonArr.size(); i++) {
+				        jsonValues.add(jsonArr.getJsonObject(i));
+				    }
+				    Collections.sort( jsonValues, new Comparator<JsonObject>() {
+				        //You can change "Name" with "ID" if you want to sort by ID
+				        private static final String KEY_NAME = "concept_system";
+
+				        @Override
+				        public int compare(JsonObject a, JsonObject b) {
+				            String valA = new String();
+				            String valB = new String();
+
+				            try {
+				                valA = (String) a.get(KEY_NAME).toString();
+				                valB = (String) b.get(KEY_NAME).toString();
+				            } 
+				            catch (Exception e) {
+				                //do something
+				            }
+
+				            return valA.compareTo(valB);
+				            //if you want to change the sort order, simply use the following:
+				            //return -valA.compareTo(valB);
+				        }
+				    });
+
+				    for (int i = 0; i < jsonArr.size(); i++) {
+				        sortedJsonArray.add(jsonValues.get(i));
+				    }
+				
+			//	JsonObject output = Json.createObjectBuilder()
+			//			.add("concept_systems", arrBuilder.build()).build();
 
 				JsonObject output = Json.createObjectBuilder()
-						.add("concept_systems", arrBuilder.build()).build();
-
+								.add("concept_systems", sortedJsonArray.build()).build();
+				    
 				return output.toString();
 			}
 		}
